@@ -12,11 +12,12 @@ import simpledb.file.*;
  */
 class BasicBufferMgr {
 	/**
-	 * Added HashMap to keep track of buffers in the pool instead of an array because retrieval is faster
-	 * Created a counter variable to track the 'pin time' of a block Created a
-	 * bufferPoolSize to store the maximum limit on the buffer pool size
+	 * Added HashMap to keep track of buffers in the pool instead of an array
+	 * because retrieval is faster Created a counter variable to track the 'pin
+	 * time' of a block Created a bufferPoolSize to store the maximum limit on the
+	 * buffer pool size
 	 * 
-	 * @author Team number xxx
+	 * @author Team F
 	 */
 	private HashMap<Block, Buffer> bufferPoolMap;
 	private int numAvailable;
@@ -35,10 +36,10 @@ class BasicBufferMgr {
 	 * @param numbuffs
 	 *            the number of buffer slots to allocate
 	 * 
-	 * Removed array initialization and replaced it with HashMap.
-	 * Assigning bufferPoolSize
+	 *            Removed array initialization and replaced it with HashMap.
+	 *            Assigning bufferPoolSize
 	 * 
-	 * @author Team number xxx
+	 * @author Team F
 	 */
 	BasicBufferMgr(int numbuffs) {
 		bufferPoolMap = new HashMap<Block, Buffer>();
@@ -67,13 +68,13 @@ class BasicBufferMgr {
 	 *            a reference to a disk block
 	 * @return the pinned buffer
 	 * 
-	 * Check if the block is there in the buffer pool by calling findExistingBuffer.
-	 * Choose a victim/new buffer if block is not present in pool and remove it from pool
-	 * Assign the block to the buffer above
-	 * Increment the counter to keep track of when the block was pinned
-	 * Put the buffer in the buffer pool (HashMap)
+	 *         Check if the block is there in the buffer pool by calling
+	 *         findExistingBuffer. Choose a victim/new buffer if block is not
+	 *         present in pool and remove it from pool Assign the block to the
+	 *         buffer above Increment the counter to keep track of when the block
+	 *         was pinned Put the buffer in the buffer pool (HashMap)
 	 * 
-	 * @author Team number xxx
+	 * @author Team F
 	 */
 	synchronized Buffer pin(Block blk) {
 		Buffer buff = findExistingBuffer(blk);
@@ -100,12 +101,12 @@ class BasicBufferMgr {
 	 *            a pageformatter object, used to format the new block
 	 * @return the pinned buffer
 	 * 
-	 * Choose a victim/new buffer if block is not present in pool and remove it from pool
-	 * Assign the block to the buffer above
-	 * Increment the counter to keep track of when the block was pinned
-	 * Put the buffer in the buffer pool (HashMap)
+	 *         Choose a victim/new buffer if block is not present in pool and remove
+	 *         it from pool Assign the block to the buffer above Increment the
+	 *         counter to keep track of when the block was pinned Put the buffer in
+	 *         the buffer pool (HashMap)
 	 * 
-	 * @author Team number xxx
+	 * @author Team F
 	 */
 	synchronized Buffer pinNew(String filename, PageFormatter fmtr) {
 		Buffer buff = chooseUnpinnedBuffer();
@@ -138,11 +139,12 @@ class BasicBufferMgr {
 	int available() {
 		return numAvailable;
 	}
-	
+
 	/**
-	 * Find and return the block from the HashMap instead of array else null
+	 * Find and return the Buffer from the HashMap instead of searching from the
+	 * buffer array If not found return null
 	 * 
-	 * @author Team number xxx
+	 * @author Team F
 	 */
 	private Buffer findExistingBuffer(Block blk) {
 		if (bufferPoolMap.containsKey(blk)) {
@@ -152,6 +154,35 @@ class BasicBufferMgr {
 		}
 	}
 
+	/**
+	 * LRU(2) Replacement Policy implementation. Each buffer has two fields to keep
+	 * track of when it was accessed last and second(k=2) last.
+	 * 
+	 * If there is space left in the buffer pool, just create a new buffer and
+	 * return
+	 * 
+	 * Else search for a victim from the available unpinned buffers with the
+	 * following logic.
+	 * 
+	 * -------------------------------------------------------------------------------------
+	 * 
+	 * If the replacement candidate and unpinned buffer from the pool have been pinned only once 
+	 * --> Make the buffer which was pinned first, (least recently used) as the candidate
+	 * 
+	 * If the replacement candidate and unpinned buffer from the pool have been pinned twice 
+	 * --> Make the buffer which was pinned first, (least recently used) as the candidate
+	 * 
+	 * If either of the replacement candidate or unpinned buffer from the pool have been pinned only once 
+	 * --> Make the buffer which was pinned only once (infinite back distance) as the candidate
+	 * 
+	 * ----> return the candidate after comparing with all the unpinned buffers
+	 * 
+	 * -------------------------------------------------------------------------------------
+	 * 
+	 * If there are no unpinned buffers, raise an BufferAbortException
+	 * 
+	 * @author Team F
+	 */
 	private Buffer chooseUnpinnedBuffer() {
 		if (numAvailable > 0) {
 			if (bufferPoolMap.size() < bufferPoolSize) {
@@ -161,50 +192,48 @@ class BasicBufferMgr {
 				Buffer lruBuff = null;
 				for (Buffer b : bufferPoolMap.values()) {
 					if (!b.isPinned()) {
-						System.out.println("Considering buffer " + b.getLastAccess() + ", " + b.getSecondLastAccess());
 						if (lruBuff == null) {
 							lruBuff = b;
 						} else {
-							
 							// If both the current block and replacement candidate was pinned twice or more
-							if (b.getSecondLastAccess() != 0 && lruBuff.getSecondLastAccess() != 0) {
-								if (b.getLastAccess() < lruBuff.getLastAccess()) {
+							if (b.getSecondLastPin() != 0 && lruBuff.getSecondLastPin() != 0) {
+								if (b.getlastPin() < lruBuff.getlastPin()) {
 									lruBuff = b;
 								}
 							}
 							// If both the current block and replacement candidate was pinned only once
-							if (b.getSecondLastAccess() == 0 && lruBuff.getSecondLastAccess() == 0) {
-								if (b.getLastAccess() < lruBuff.getLastAccess()) {
+							if (b.getSecondLastPin() == 0 && lruBuff.getSecondLastPin() == 0) {
+								if (b.getlastPin() < lruBuff.getlastPin()) {
 									lruBuff = b;
 								}
-							}/*
-							// If the current block was pinned only once and replacement candidate was pinned twice or more
-							if (b.getSecondLastAccess() == 0 && lruBuff.getSecondLastAccess() != 0) {
-								if (b.getLastAccess() < lruBuff.getSecondLastAccess()) {
-									lruBuff = b;
-								}
-							}*/
-							// If the current block was pinned twice and replacement candidate was pinned only once
-							if (b.getSecondLastAccess() == 0 || lruBuff.getSecondLastAccess() == 0) {
-								lruBuff = b.getSecondLastAccess() != 0 ? lruBuff: b;
+							}
+							// If either of the current block or replacement candidate was pinned only once
+							if (b.getSecondLastPin() == 0 || lruBuff.getSecondLastPin() == 0) {
+								lruBuff = b.getSecondLastPin() != 0 ? lruBuff : b;
 							}
 						}
 					}
 				}
 
-				System.out.println("returning buffer " + lruBuff.getLastAccess() + ", " + lruBuff.getSecondLastAccess());
-				lruBuff.setLastAccess(0);
-				lruBuff.setSecondLastAccess(0);
+				System.out.println("returning buffer " + lruBuff.getlastPin() + ", " + lruBuff.getSecondLastPin());
+
+				// Reset the pin times
+				lruBuff.setLastPin(0);
+				lruBuff.setSecondLastPin(0);
+
+				// Return the buffer
 				return lruBuff;
 			}
+		} else {
+			throw new BufferAbortException();
 		}
-		throw new BufferAbortException();
 	}
 
 	/**
 	 * Determines whether the map has a mapping from the block to some buffer.
 	 * 
-	 * @paramblk the block to use as a key
+	 * @param blk
+	 *            the block to use as a key
 	 * @return true if there is a mapping; false otherwise
 	 */
 	boolean containsMapping(Block blk) {
@@ -214,7 +243,8 @@ class BasicBufferMgr {
 	/**
 	 * Returns the buffer that the map maps the specified block to.
 	 * 
-	 * @paramblk the block to use as a key
+	 * @param blk
+	 *            the block to use as a key
 	 * @return the buffer mapped to if there is a mapping; null otherwise
 	 */
 	Buffer getMapping(Block blk) {
