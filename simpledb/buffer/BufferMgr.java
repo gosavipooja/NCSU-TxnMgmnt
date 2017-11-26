@@ -1,5 +1,7 @@
 package simpledb.buffer;
 
+import java.util.HashMap;
+
 import simpledb.file.*;
 
 /**
@@ -121,4 +123,43 @@ public class BufferMgr {
    private boolean waitingTooLong(long starttime) {
       return System.currentTimeMillis() - starttime > MAX_TIME;
    }
+   
+   /**
+   * Determines whether the map has a mapping from
+   * the block to some buffer.
+   * @paramblk the block to use as a key
+   * @return true if there is a mapping; false otherwise
+   */
+   public boolean containsMapping (Block blk) {
+	   return bufferMgr.containsMapping(blk);
+   }
+   
+   /**
+   * Returns the buffer that the map maps the specified block to.
+   * @paramblk the block to use as a key
+   * @return the buffer mapped to if there is a mapping; null otherwise
+   */
+   public Buffer getMapping (Block blk) {
+	   return bufferMgr.getMapping(blk);
+   }
+   
+	/**
+	* Function for JUnit test 
+	* @return the bufferPoolMap of Basic Buffer Manager
+	*/
+	public HashMap<Block, Buffer> getBufferPoolMap() {
+		return bufferMgr.getBufferPoolMap();
+	}
+
+	/**
+	* Function for JUnit test 
+	* resets the numAvailable count of Basic Buffer Manager
+	*/
+	public void resetNumAvailable() {
+		bufferMgr.resetNumAvailable();
+	}
+	
+	public void resetCounter() {
+		BasicBufferMgr.counter = 0;
+	}
 }
