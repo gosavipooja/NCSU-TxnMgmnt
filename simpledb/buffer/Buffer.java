@@ -12,14 +12,21 @@ import simpledb.file.*;
  * 
  * @author Edward Sciore
  */
+
 public class Buffer {
 	private Page contents = new Page();
 	private Block blk = null;
 	private int pins = 0;
 	private int modifiedBy = -1; // negative means not modified
 	private int logSequenceNumber = -1; // negative means no corresponding log record
-	private double lastAccess = 0;
-	private double secondLastAccess = 0;
+
+	/**
+	 * The below two variables are used in the LRU(2) replacement policy
+	 * 
+	 * @author Team F
+	 */
+	private double lastPin = 0; // stores the K distance pin time
+	private double secondLastPin = 0; // stores the K-1 distance (more recent) pin time
 
 	/**
 	 * Creates a new buffer, wrapping a new {@link simpledb.file.Page page}. This
@@ -30,7 +37,8 @@ public class Buffer {
 	 * {@link simpledb.server.SimpleDB#initFileAndLogMgr(String)} or is called
 	 * first.
 	 */
-	public Buffer() {}
+	public Buffer() {
+	}
 
 	/**
 	 * Returns the integer value at the specified offset of the buffer's page. If an
@@ -125,20 +133,35 @@ public class Buffer {
 	}
 
 	/**
-	 * Increases the buffer's pin count.
-	 * and also update the last access times
+	 * Increases the buffer's pin count. and also update the last access times
+	 * 
+	 * The pin times are updated with the below logic
+	 * 
+	 * If the block is being pinned for the first time
+	 * 
+	 * --> Update the lastPin (this stores K back distance) with the current pin time
+	 * 
+	 * If the block is being pinned for second time
+	 * 
+	 * --> Update the secondLastPin (this stores K-1 back distance) with the current pin time
+	 * 
+	 * For other instances of pinning
+	 * 
+	 * --> Update lastPin with the value in secondLastPin --> Update secondLastPin
+	 * with the current pin time
+	 * 
+	 * @author Team F
 	 */
 	void pin() {
 		pins++;
-		
-		// Update the access times
-		if (this.lastAccess == 0) {
-			this.lastAccess = BasicBufferMgr.counter;
-		} else if (this.secondLastAccess == 0) {
-			this.secondLastAccess = BasicBufferMgr.counter;
+
+		if (this.lastPin == 0) {
+			this.lastPin = BasicBufferMgr.counter;
+		} else if (this.secondLastPin == 0) {
+			this.secondLastPin = BasicBufferMgr.counter;
 		} else {
-			this.lastAccess = secondLastAccess;
-			this.secondLastAccess = BasicBufferMgr.counter;
+			this.lastPin = secondLastPin;
+			this.secondLastPin = BasicBufferMgr.counter;
 		}
 	}
 
@@ -202,20 +225,25 @@ public class Buffer {
 		blk = contents.append(filename);
 		pins = 0;
 	}
-	
-	public double getLastAccess() {
-		return this.lastAccess;
+
+	/**
+	 * Getter and Setter method for Pin times.
+	 * 
+	 * @author Team F
+	 */
+	public double getlastPin() {
+		return this.lastPin;
 	}
 
-	public void setLastAccess(long lastAccess) {
-		this.lastAccess = lastAccess;
+	public void setLastPin(long lastPin) {
+		this.lastPin = lastPin;
 	}
 
-	public double getSecondLastAccess() {
-		return this.secondLastAccess;
+	public double getSecondLastPin() {
+		return this.secondLastPin;
 	}
 
-	public void setSecondLastAccess(long secondLastAccess) {
-		this.secondLastAccess = secondLastAccess;
+	public void setSecondLastPin(long secondLastPin) {
+		this.secondLastPin = secondLastPin;
 	}
 }
