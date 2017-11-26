@@ -215,8 +215,6 @@ class BasicBufferMgr {
 					}
 				}
 
-				System.out.println("returning buffer " + lruBuff.getlastPin() + ", " + lruBuff.getSecondLastPin());
-
 				// Reset the pin times
 				lruBuff.setLastPin(0);
 				lruBuff.setSecondLastPin(0);
