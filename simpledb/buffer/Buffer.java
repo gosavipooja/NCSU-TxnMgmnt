@@ -22,11 +22,14 @@ public class Buffer {
 
 	/**
 	 * The below two variables are used in the LRU(2) replacement policy
-	 * 
+	 * And to add buffer ID to the Buffer Class
 	 * @author Team F
 	 */
 	private double lastPin = 0; // stores the K distance pin time
 	private double secondLastPin = 0; // stores the K-1 distance (more recent) pin time
+	static int numBuffers = 0;
+	private int buffId;
+	
 
 	/**
 	 * Creates a new buffer, wrapping a new {@link simpledb.file.Page page}. This
@@ -37,8 +40,24 @@ public class Buffer {
 	 * {@link simpledb.server.SimpleDB#initFileAndLogMgr(String)} or is called
 	 * first.
 	 */
+
+	/**
+	 * Added buffer ID to all the buffers in the buffer pool
+	 * @author Team F
+	 */
 	public Buffer() {
+		this.buffId = ++numBuffers;
 	}
+	
+	/**
+	 * Returns the buffer ID associated with the buffer
+	 * @author Team F
+	 * @return
+	 */
+	public int getBufferId() {
+		return buffId;
+	}
+
 
 	/**
 	 * Returns the integer value at the specified offset of the buffer's page. If an

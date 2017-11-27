@@ -32,8 +32,14 @@ public class BufferMgr {
 	 * @param numbuffers
 	 *            the number of buffer slots to allocate
 	 */
+	
+	/**
+	 * Counter reset of Buffer required for JUnit tests
+	 * @author Team F
+	 */
 	public BufferMgr(int numbuffers) {
 		bufferMgr = new BasicBufferMgr(numbuffers);
+		Buffer.numBuffers = 0;
 	}
 
 	/**
