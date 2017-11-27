@@ -1,4 +1,4 @@
-package simpledb.test;
+package simpledb.buffer;
 
 import static org.junit.Assert.*;
 
@@ -12,9 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import simpledb.buffer.Buffer;
-import simpledb.buffer.BufferAbortException;
-import simpledb.buffer.BufferMgr;
 import simpledb.file.Block;
 import simpledb.server.SimpleDB;
 
@@ -23,7 +20,7 @@ import simpledb.server.SimpleDB;
  * @author Team F
  *
  */
-public class BufferTester {
+public class BufferUnitTest {
 	
 	private HashMap<Integer,Block> blocksMap = new HashMap<>();
 	private BufferMgr myBufferMgr;
@@ -124,6 +121,8 @@ public class BufferTester {
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
 		
+		Block blk13 = blocksMap.get(13);
+		int blk13_bufId = myBufferMgr.getMapping(blk13).getBufferId();
 		Block blk15 = blocksMap.get(15);
 		int blk15_bufId = myBufferMgr.getMapping(blk15).getBufferId();
 		Block blk17 = blocksMap.get(17);
@@ -134,22 +133,26 @@ public class BufferTester {
 
 		System.out.println("\nEvent(s):");
 		
+
 		System.out.println("Block 17 is unpinned");
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk17));
 		
 		System.out.println("Block 15 is unpinned");
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
+		System.out.println("Block 13 is unpinned");
+		myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
 		
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		 /*Block 15 is replaced
+		 /*Block 13 is replaced
+		 Block 15 is NOT replaced
 		 Block 17 is NOT replaced
 		 Block 18 is present
 		 Buffer ID of 18 is same as that of 15
 		 */
-		boolean testCondition =  !(myBufferMgr.containsMapping(blk15)) && myBufferMgr.containsMapping(blk17) && myBufferMgr.containsMapping(blk18) && (blk15_bufId == myBufferMgr.getMapping(blk18).getBufferId());
+		boolean testCondition =  (myBufferMgr.containsMapping(blk15)) && myBufferMgr.containsMapping(blk17) && !myBufferMgr.containsMapping(blk13) && myBufferMgr.containsMapping(blk18) && (blk13_bufId == myBufferMgr.getMapping(blk18).getBufferId());
 		assertTrue(testCondition);
 		
 	}
@@ -163,6 +166,8 @@ public class BufferTester {
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
 		
+		Block blk13 = blocksMap.get(13);
+		int blk13_bufId = myBufferMgr.getMapping(blk13).getBufferId();
 		Block blk15 = blocksMap.get(15);
 		int blk15_bufId = myBufferMgr.getMapping(blk15).getBufferId();
 		Block blk17 = blocksMap.get(17);
@@ -179,6 +184,9 @@ public class BufferTester {
 		System.out.println("Block 15 is pinned");
 		myBufferMgr.pin(blk15);
 		
+		System.out.println("Block 13 is pinned");
+		myBufferMgr.pin(blk13);
+		
 		System.out.println("Block 17 is unpinned 2 times");
 		for(int i=0; i<2; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk17));
@@ -187,15 +195,20 @@ public class BufferTester {
 		for(int i=0; i<2; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
+		System.out.println("Block 13 is unpinned 2 times");
+		for(int i=0; i<2; i++)
+			myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
+		
 		
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		 /*Block 15 is replaced
+		 /*Block 13 is replaced
+		 Block 15 is NOT replaced
 		 Block 17 is NOT replaced
 		 Block 18 is present
 		 Buffer ID of 18 is same as that of 15*/
-		boolean testCondition = !(myBufferMgr.containsMapping(blk15)) && myBufferMgr.containsMapping(blk17) && myBufferMgr.containsMapping(blk18) && (blk15_bufId == myBufferMgr.getMapping(blk18).getBufferId());
+		boolean testCondition = !(myBufferMgr.containsMapping(blk13)) && myBufferMgr.containsMapping(blk15) && myBufferMgr.containsMapping(blk17) && myBufferMgr.containsMapping(blk18) && (blk13_bufId == myBufferMgr.getMapping(blk18).getBufferId());
 		assertTrue(testCondition);
 		
 	}
@@ -209,6 +222,8 @@ public class BufferTester {
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
 		
+		Block blk13 = blocksMap.get(13);
+		int blk13_bufId = myBufferMgr.getMapping(blk13).getBufferId();
 		Block blk15 = blocksMap.get(15);
 		int blk15_bufId = myBufferMgr.getMapping(blk15).getBufferId();
 		Block blk17 = blocksMap.get(17);
@@ -227,6 +242,10 @@ public class BufferTester {
 		System.out.println("Block 15 is pinned 2 times");
 		for(int i=0; i<2; i++)
 			myBufferMgr.pin(blk15);
+
+		System.out.println("Block 13 is pinned 2 times");
+		for(int i=0; i<2; i++)
+			myBufferMgr.pin(blk13);
 		
 		System.out.println("Block 17 is unpinned 3 times");
 		for(int i=0; i<3; i++)
@@ -235,6 +254,10 @@ public class BufferTester {
 		System.out.println("Block 15 is unpinned 3 times");
 		for(int i=0; i<3; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
+		
+		System.out.println("Block 13 is unpinned 3 times");
+		for(int i=0; i<3; i++)
+			myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
 		
 		
 		System.out.println("Block 18 is pinned");
@@ -324,7 +347,7 @@ public class BufferTester {
 		for(Buffer b: sortedBufferPool) {
 			double l = b.getlastPin();
 			double s = b.getSecondLastPin();
-//			System.out.print("[ Buffer "+b.getBufferId()+" ] : Block "+b.block()+" [l="+l+", s="+s+"]\n");
+			System.out.println("[ Buffer "+b.getBufferId()+" ] : Block "+b.block()+" [l="+l+", s="+s+"] Pinned="+b.isPinned());
 		}
 	}
 	

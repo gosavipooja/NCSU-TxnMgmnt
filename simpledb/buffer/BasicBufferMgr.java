@@ -202,13 +202,13 @@ class BasicBufferMgr {
 								}
 							}
 							// If both the current block and replacement candidate was pinned only once
-							if (b.getSecondLastPin() == 0 && lruBuff.getSecondLastPin() == 0) {
+							else if (b.getSecondLastPin() == 0 && lruBuff.getSecondLastPin() == 0) {
 								if (b.getlastPin() < lruBuff.getlastPin()) {
 									lruBuff = b;
 								}
 							}
 							// If either of the current block or replacement candidate was pinned only once
-							if (b.getSecondLastPin() == 0 || lruBuff.getSecondLastPin() == 0) {
+							else if (b.getSecondLastPin() == 0 || lruBuff.getSecondLastPin() == 0) {
 								lruBuff = b.getSecondLastPin() != 0 ? lruBuff : b;
 							}
 						}
