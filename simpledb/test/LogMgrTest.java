@@ -14,6 +14,7 @@ public class LogMgrTest {
 		int lsn3 = logmgr.append(new Object[]{"Raghav","Muddur"});
 		logmgr.flush(lsn3);
 		
+		logmgr.printLog();
 		logmgr.printLogPageBuffer();
 	}
 }

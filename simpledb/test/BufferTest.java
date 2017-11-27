@@ -76,9 +76,9 @@ public class BufferTest {
 	}
 
 	@Test
-	public void basicReplacementTest() {
-		System.out.println("\nIn Basic Replacement Test ...");
-		System.out.println("\nBuffer pool state BEFORE replacement:");
+	public void basicReplacementTest1() {
+		System.out.println("\n\nIn Basic Replacement Test 1...");
+		//System.out.println("\nBuffer pool state BEFORE replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
@@ -98,7 +98,7 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		System.out.println("\nBuffer pool state AFTER replacement:");
+		//System.out.println("\nBuffer pool state AFTER replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		// Block 15 is replaced
@@ -114,7 +114,7 @@ public class BufferTest {
 	@Test
 	public void basicReplacementTest2() {
 		System.out.println("\n\nIn Basic Replacement Test 2...");
-		System.out.println("\nBuffer pool state BEFORE replacement:");
+		//System.out.println("\nBuffer pool state BEFORE replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
@@ -138,7 +138,7 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		System.out.println("\nBuffer pool state AFTER replacement:");
+		//System.out.println("\nBuffer pool state AFTER replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		// Block 15 is replaced
@@ -157,7 +157,7 @@ public class BufferTest {
 	@Test
 	public void lru2ReplacementTest1() {
 		System.out.println("\n\nIn LRU2 Replacement Test 1...");
-		System.out.println("\nBuffer pool state BEFORE replacement:");
+		//System.out.println("\nBuffer pool state BEFORE replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
@@ -189,7 +189,7 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		System.out.println("\nBuffer pool state AFTER replacement:");
+		//System.out.println("\nBuffer pool state AFTER replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		// Block 15 is replaced
@@ -208,7 +208,7 @@ public class BufferTest {
 	@Test
 	public void lru2ReplacementTest2() {
 		System.out.println("\n\nIn LRU2 Replacement Test 2...");
-		System.out.println("\nBuffer pool state BEFORE replacement:");
+		//System.out.println("\nBuffer pool state BEFORE replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
@@ -248,7 +248,7 @@ public class BufferTest {
 		System.out.println("Block 19 is pinned");
 		myBufferMgr.pin(blk19);
 		
-		System.out.println("\nBuffer pool state AFTER replacement:");
+		//System.out.println("\nBuffer pool state AFTER replacement:");
 		dumpBufferPool(myBufferMgr);
 		
 		// Block 15 is replaced

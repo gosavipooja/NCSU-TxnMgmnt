@@ -47,23 +47,18 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    public LogMgr(String logfile) {
       this.logfile = logfile;
       int logsize = SimpleDB.fileMgr().size(logfile);
-
       
+      /**
+       * If the log file size is zero, a new block will be allocated and the block will be pinned by the log manager
+       * Else the last block of the log file will be used to pin to the buffer
+       * @author Team F
+       */
       if (logsize == 0)
          appendNewBlock();
       else {
-          this.mybuf = SimpleDB.bufferMgr().pinNew(this.logfile, new PageFormatter() {
-  			
-  			@Override
-  			public void format(Page p) {
-  				// TODO Auto-generated method stub
-  				
-  			}
-  		}) ;
-        currentblk = this.mybuf.block();
-//         currentblk = new Block(logfile, logsize-1);
-//         mybuf.read(currentblk);
-         currentpos = getLastRecordPosition() + INT_SIZE;
+    	  currentblk = new Block(logfile, logsize-1);
+    	  this.mybuf = SimpleDB.bufferMgr().pin(currentblk);
+          currentpos = getLastRecordPosition() + INT_SIZE;
       }
    }
 
@@ -199,16 +194,41 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       mybuf.setInt(LAST_POS, pos, LM_TXN_ID, currentLSN());
    }
    
-   public void printLogPageBuffer() {
-	   int bufNum = -1;
-	   System.out.println("Buffer number pinned to the log block: "+bufNum);
-	   System.out.println("Conents of buffer "+bufNum+":");
+   public void printLog() {
+	   int bufNum = this.mybuf.getBufferId();
+	   System.out.println("\n\nConents of Log :");
 	   
 	   Iterator<BasicLogRecord> iter = iterator();
 	   while(iter.hasNext()) {
 		   BasicLogRecord rec = iter.next();
 		   String v1 = rec.nextString();
 		   String v2 = rec.nextString();
+		   
+		   System.out.println("["+v1+", "+v2+"]");
+	   }
+	   
+   }
+   
+   public void printLogPageBuffer() {
+	   System.out.println("\n");
+	   int bufNum = this.mybuf.getBufferId();
+	   System.out.println("Buffer number pinned to the log block: "+bufNum);
+	   System.out.println("Log block pinned to buffer : "+mybuf.block());
+	   System.out.println("Conents of buffer "+bufNum+":");
+	   
+	   int currentrec = mybuf.getInt(LogMgr.LAST_POS);
+	   
+	   
+	   while(currentrec != 0) {
+		   currentrec = mybuf.getInt(currentrec);
+//		   BasicLogRecord rec = new BasicLogRecord(pg, currentrec+INT_SIZE);
+		   int pos = currentrec+INT_SIZE;
+		   
+		   String v1 = mybuf.getString(pos);
+		   pos += STR_SIZE(v1.length());
+		   
+		   String v2 = mybuf.getString(pos);
+		   pos += STR_SIZE(v2.length());
 		   
 		   System.out.println("["+v1+", "+v2+"]");
 	   }

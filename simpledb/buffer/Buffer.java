@@ -2,6 +2,7 @@ package simpledb.buffer;
 
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
+import simpledb.log.LogMgr;
 
 /**
  * An individual buffer. A buffer wraps a page and stores information about its
@@ -144,7 +145,11 @@ public class Buffer {
 	 * the page to disk.
 	 */
 	void flush() {
-		if (modifiedBy >= 0) {
+		/**
+		 * Enabled flush for log page buffers
+		 * @author Team F
+		 */
+		if (modifiedBy >= 0 || modifiedBy == LogMgr.LM_TXN_ID) {
 			SimpleDB.logMgr().flush(logSequenceNumber);
 			contents.write(blk);
 			modifiedBy = -1;
@@ -158,9 +163,12 @@ public class Buffer {
 	 * @author Team F
 	 */
 	public void forceFlush() {
-		contents.write(blk);
-		modifiedBy = -1;
+		if(modifiedBy == LogMgr.LM_TXN_ID) {
+			contents.write(blk);
+			modifiedBy = -1;
+		}
 	}
+	
 	/**
 	 * Increases the buffer's pin count. and also update the last access times
 	 * 
