@@ -33,9 +33,8 @@ Title: Basic Replacement Test 2
 
 Test Description:
 1) All the blocks in the buffer pool (except log manager) are pinned once in order 11 to 17
-2) Block 17 is unpinned
-3) Block 15 is unpinned 
-4) Block 18 will be newly pinned
+2) Block 17 and Block 15 are unpinned
+3) Block 18 will be newly pinned
 
 Expectation:
 1) Block 18 will replace Block 15 in the buffer pool
@@ -53,17 +52,15 @@ Title: LRU2 Replacement Test 1
 
 Test Description:
 1) All the blocks in the buffer pool (except log manager) are pinned once in order 11 to 17
-2) Block 17 is pinned
-3) Block 15 is pinned
-4) Block 17 is unpinned twice
-5) Block 15 is unpinned twice
-6) Block 18 will be newly pinned
+2) Block 17 and Block 15 are pinned
+3) Block 17 and Block 15 are unpinned 2 times
+4) Block 18 will be newly pinned
 
 Expectation:
 1) Block 18 will replace Block 15 in the buffer pool
 
 Explanation:
-Both Block 15 and Block 17 were pinned twice and unpinned twice to ensure that the pin count remains zero at the end.
+Both Block 15 and Block 17 were pinned 2 times and unpinned 2 times to ensure that the pin count remains zero at the end.
 Block 15 will be replaced because Backward 2 distance of Block 15 is higher than Block 17 (as it was pinned first during initialization)
 	 
 --------------------------------------------------------------------------------------------
@@ -74,19 +71,16 @@ Title: LRU2 Replacement Test 2
 
 Test Description:
 1) All the blocks in the buffer pool (except log manager) are pinned once in order 11 to 17
-2) Block 17 is pinned twice
-3) Block 15 is pinned twice
-4) Block 17 is unpinned thrice
-5) Block 15 is unpinned thrice
-6) Block 18 will be newly pinned
-7) Block 19 will be newly pinned
+2) Block 17 and Block 15 and pinned 2 times
+3) Block 17 and Block 15 are unpinned 3 times
+4) Block 18 and Block 19 will be newly pinned
 
 Expectation:
 1) Block 18 will replace Block 17 in the buffer pool
 2) Block 19 will replace Block 15 in the buffer pool
 
 Explanation:
-Both Block 15 and Block 17 were pinned thrice and unpinned thrice to ensure that the pin count remains zero at the end.
+Both Block 15 and Block 17 were pinned 3 times (int total) and unpinned 3 times to ensure that the pin count remains zero at the end.
 Block 15 will be replaced because Backward 2 distance of Block 17 is higher than Block 15 (as the second pin of Block 17 was before Block 15)
 
 --------------------------------------------------------------------------------------------
@@ -100,7 +94,7 @@ Test Description:
 2) Unpin order = {17,16,15,14,11,17,14,12,12}
 
 Expectation:
-2) Block 19 will replace Block 15 in the buffer pool
+1) Block 19 will replace Block 15 in the buffer pool
 
 Explanation:
 Block 4, 2, 7 and 1 have second last access times. Block 1 has the largest backward 2 distance.
