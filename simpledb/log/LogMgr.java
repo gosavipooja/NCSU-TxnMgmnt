@@ -216,19 +216,19 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 	   System.out.println("Log block pinned to buffer : "+mybuf.block());
 	   System.out.println("Conents of buffer "+bufNum+":");
 	   
-	   int currentrec = mybuf.getInt(LogMgr.LAST_POS);
+	   int current_rec_pos = mybuf.getInt(LogMgr.LAST_POS);
 	   
 	   
-	   while(currentrec != 0) {
-		   currentrec = mybuf.getInt(currentrec);
+	   while(current_rec_pos != 0) {
+		   current_rec_pos = mybuf.getInt(current_rec_pos);
 //		   BasicLogRecord rec = new BasicLogRecord(pg, currentrec+INT_SIZE);
-		   int pos = currentrec+INT_SIZE;
+		   int position_in_rec = current_rec_pos+INT_SIZE;
 		   
-		   String v1 = mybuf.getString(pos);
-		   pos += STR_SIZE(v1.length());
+		   String v1 = mybuf.getString(position_in_rec);
+		   position_in_rec += STR_SIZE(v1.length());
 		   
-		   String v2 = mybuf.getString(pos);
-		   pos += STR_SIZE(v2.length());
+		   String v2 = mybuf.getString(position_in_rec);
+		   position_in_rec += STR_SIZE(v2.length());
 		   
 		   System.out.println("["+v1+", "+v2+"]");
 	   }

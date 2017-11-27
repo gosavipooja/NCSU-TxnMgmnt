@@ -88,3 +88,20 @@ Expectation:
 Explanation:
 Both Block 15 and Block 17 were pinned thrice and unpinned thrice to ensure that the pin count remains zero at the end.
 Block 15 will be replaced because Backward 2 distance of Block 17 is higher than Block 15 (as the second pin of Block 17 was before Block 15)
+
+--------------------------------------------------------------------------------------------
+	 
+Test 5
+
+Title: Master LRU Test (From project appendix)
+
+Test Description:
+1) Pin order = {11,12,13,14,15,16,17,14,12,17,11}
+2) Unpin order = {17,16,15,14,11,17,14,12,12}
+
+Expectation:
+2) Block 19 will replace Block 15 in the buffer pool
+
+Explanation:
+Block 4, 2, 7 and 1 have second last access times. Block 1 has the largest backward 2 distance.
+But the backward distance of Block 5 is at infinity. Hence Block 5 will be replaced. 

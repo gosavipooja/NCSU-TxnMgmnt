@@ -64,12 +64,18 @@ public class BufferTest {
 		/* Cache the buffer pool map before the pages were replaced */
 		beforeMap = getMap(myBufferMgr);
 		
+//		System.out.println("\nBuffer pool state BEFORE replacement:");
+//		dumpBufferPool(myBufferMgr);
+		
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		/* Cache the buffer pool map after the pages were replaced */
 		afterMap = getMap(myBufferMgr);
+		
+//		System.out.println("\nBuffer pool state AFTER replacement:");
+//		dumpBufferPool(myBufferMgr);
 		
 		System.out.println("\nChanges in Buffer Pool:");
 		diffMap(beforeMap,afterMap);
@@ -78,8 +84,6 @@ public class BufferTest {
 	@Test
 	public void basicReplacementTest1() {
 		System.out.println("\n\nIn Basic Replacement Test 1...");
-		//System.out.println("\nBuffer pool state BEFORE replacement:");
-		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
@@ -98,9 +102,6 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		//System.out.println("\nBuffer pool state AFTER replacement:");
-		dumpBufferPool(myBufferMgr);
-		
 		// Block 15 is replaced
 		assertFalse(buffPoolMap.containsKey(blk15));
 		// Block 18 is present
@@ -114,8 +115,6 @@ public class BufferTest {
 	@Test
 	public void basicReplacementTest2() {
 		System.out.println("\n\nIn Basic Replacement Test 2...");
-		//System.out.println("\nBuffer pool state BEFORE replacement:");
-		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
@@ -138,9 +137,6 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		//System.out.println("\nBuffer pool state AFTER replacement:");
-		dumpBufferPool(myBufferMgr);
-		
 		// Block 15 is replaced
 		assertFalse(buffPoolMap.containsKey(blk15));
 		// Block 17 is NOT replaced
@@ -157,8 +153,6 @@ public class BufferTest {
 	@Test
 	public void lru2ReplacementTest1() {
 		System.out.println("\n\nIn LRU2 Replacement Test 1...");
-		//System.out.println("\nBuffer pool state BEFORE replacement:");
-		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
@@ -189,9 +183,6 @@ public class BufferTest {
 		System.out.println("Block 18 is pinned");
 		myBufferMgr.pin(blk18);
 		
-		//System.out.println("\nBuffer pool state AFTER replacement:");
-		dumpBufferPool(myBufferMgr);
-		
 		// Block 15 is replaced
 		assertFalse(buffPoolMap.containsKey(blk15));
 		// Block 17 is NOT replaced
@@ -208,8 +199,6 @@ public class BufferTest {
 	@Test
 	public void lru2ReplacementTest2() {
 		System.out.println("\n\nIn LRU2 Replacement Test 2...");
-		//System.out.println("\nBuffer pool state BEFORE replacement:");
-		dumpBufferPool(myBufferMgr);
 		
 		/* Retrieve the buffer pool map */
 		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
@@ -248,9 +237,6 @@ public class BufferTest {
 		System.out.println("Block 19 is pinned");
 		myBufferMgr.pin(blk19);
 		
-		//System.out.println("\nBuffer pool state AFTER replacement:");
-		dumpBufferPool(myBufferMgr);
-		
 		// Block 15 is replaced
 		assertFalse(buffPoolMap.containsKey(blk15));
 		// Block 17 is replaced
@@ -265,6 +251,58 @@ public class BufferTest {
 		assertTrue(blk15_bufId == myBufferMgr.getMapping(blk19).getBufferId());
 		
 	}
+	
+	
+	
+	@Test
+	public void masterLruTest() {
+		System.out.println("\n\nIn Master LRU test...");
+
+		
+		/* Retrieve the buffer pool map */
+		HashMap<Block,Buffer> buffPoolMap = myBufferMgr.getBufferPoolMap();
+		
+		Block blk15 = blocksMap.get(15);
+		int blk15_bufId = myBufferMgr.getMapping(blk15).getBufferId();
+		Block blk17 = blocksMap.get(17);
+		int blk17_bufId = myBufferMgr.getMapping(blk17).getBufferId();
+		Block blk18 = blocksMap.get(18);
+		Block blk19 = blocksMap.get(19);
+		Block blk20 = blocksMap.get(20);
+		
+		int pinOrder[] = {14,12,17,11};
+		int unpinOrder[] = {17,16,15,14,11,17,14,12,12};
+		
+		System.out.println("\nEvent(s):");
+		
+		// Pin the blocks
+		for(int p = 0 ; p< pinOrder.length; p++) {
+			int i = pinOrder[p];
+			System.out.println("Block "+i+" is pinned");
+			myBufferMgr.pin(blocksMap.get(i));
+		}
+
+		// Unpin the blocks
+		for(int p =0 ; p< unpinOrder.length; p++) {
+			int i = unpinOrder[p];
+			Buffer buf = myBufferMgr.getMapping(blocksMap.get(i));
+			System.out.println("Block "+i+" is unpinned");
+			myBufferMgr.unpin( buf );
+		}
+		
+		System.out.println("Block 19 is pinned");
+		myBufferMgr.pin(blk19);
+		
+		// Block 15 is replaced
+		assertFalse(buffPoolMap.containsKey(blk15));
+		// Block 19 is present
+		assertTrue(buffPoolMap.containsKey(blk19));
+		// Buffer ID of 19 is same as that of 15
+		assertTrue(blk15_bufId == myBufferMgr.getMapping(blk19).getBufferId());
+		
+	}
+	
+	
 	
 	private static void dumpBufferPool(BufferMgr buffMgr) {
 		
@@ -284,7 +322,9 @@ public class BufferTest {
 		}
 		
 		for(Buffer b: sortedBufferPool) {
-//			System.out.print("[ Buffer "+b.getBufferId()+" ] : Block "+b.block()+"\n");
+			double l = b.getlastPin();
+			double s = b.getSecondLastPin();
+//			System.out.print("[ Buffer "+b.getBufferId()+" ] : Block "+b.block()+" [l="+l+", s="+s+"]\n");
 		}
 	}
 	
