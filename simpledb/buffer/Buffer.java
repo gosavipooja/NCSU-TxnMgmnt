@@ -131,7 +131,17 @@ public class Buffer {
 			modifiedBy = -1;
 		}
 	}
-
+	
+	/**
+	 * Writes the page to its disk block. 
+	 * To be used only by log block buffer
+	 * 
+	 * @author Team F
+	 */
+	public void forceFlush() {
+		contents.write(blk);
+		modifiedBy = -1;
+	}
 	/**
 	 * Increases the buffer's pin count. and also update the last access times
 	 * 

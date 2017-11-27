@@ -76,8 +76,8 @@ public class SimpleDB {
     * @param dirname the name of the database directory
     */
    public static void initFileLogAndBufferMgr(String dirname) {
-      initFileAndLogMgr(dirname);
-      bm = new BufferMgr(BUFFER_SIZE);
+	   bm = new BufferMgr(BUFFER_SIZE);
+	   initFileAndLogMgr(dirname);
    }
    
    /**
