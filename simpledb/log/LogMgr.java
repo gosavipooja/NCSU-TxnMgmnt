@@ -7,6 +7,8 @@ import simpledb.file.*;
 import static simpledb.file.Page.*;
 import java.util.*;
 
+import com.sun.org.apache.bcel.internal.generic.LXOR;
+
 /**
  * The low-level log manager.
  * This log manager is responsible for writing log records
@@ -23,10 +25,15 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * A value of 0 means that the pointer is the first value in the page.
     */
    public static final int LAST_POS = 0;
+   
+   /**
+    * Transaction ID of Log Manager is hard coded 
+    * This ID will be used when calling setInt() and setString() on the buffer objects
+    * @author Team F 
+    */
    public static final int LM_TXN_ID = -2;
 
    private String logfile;
-//   private Page mypage = new Page();
    private Buffer mybuf;
    private Block currentblk;
    private int currentpos;
@@ -156,13 +163,18 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    /**
     * Clear the current page, and append it to the log file.
     */
-   /**
-    * Unpin the existing buffer
-    */
+   
    private void appendNewBlock() {
       currentpos = INT_SIZE;
       
+      /**
+       * Flushes the records from the log page
+       * Unpins the existing buffer held by the Log Manager (if any)
+       * Pins a new page in the log buffer by calling Buffer Manager
+       * @author Team F
+       */
       if(mybuf != null) {
+    	  flush();
     	  SimpleDB.bufferMgr().unpin(mybuf);
       }
       
@@ -170,7 +182,12 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 		
 		@Override
 		public void format(Page p) {
-			// TODO Auto-generated method stub
+			/**
+			 * Write Integer 0 as the first element in the page to allow further processing
+			 * This is a requirement for the log manager to work as expected as it suggests the location of last log record
+			 * @author Team F
+			 */
+			p.setInt(0, 0);
 			
 		}
 	});
@@ -188,6 +205,11 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * is the offset of the integer for the last log record in the page.
     */
    private void finalizeRecord() {
+	   /**
+	    * All the transactions associated with the log manager have LM_TXN_ID as their transaction ID
+	    * This value is used by buffer manager at the time of flush the log record to the disk
+	    * @author Team F
+	    */
       mybuf.setInt(currentpos, getLastRecordPosition(), LM_TXN_ID, currentLSN());
       setLastRecordPosition(currentpos);
       currentpos += INT_SIZE;
@@ -216,6 +238,11 @@ public class LogMgr implements Iterable<BasicLogRecord> {
 	   
    }
    
+   /**
+    * For testing Log manager
+    * Currently works when the log records in a page contain two strings
+    * @author Team F
+    */
    public void printLogPageBuffer() {
 	   System.out.println("\n");
 	   int bufNum = this.mybuf.getBufferId();

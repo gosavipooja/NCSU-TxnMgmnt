@@ -67,7 +67,7 @@ public class BufferUnitTest {
 		beforeMap = getMap(myBufferMgr);
 		
 //		System.out.println("\nBuffer pool state BEFORE replacement:");
-//		dumpBufferPool(myBufferMgr);
+
 		
 	}
 
@@ -76,8 +76,8 @@ public class BufferUnitTest {
 		/* Cache the buffer pool map after the pages were replaced */
 		afterMap = getMap(myBufferMgr);
 		
-//		System.out.println("\nBuffer pool state AFTER replacement:");
-//		dumpBufferPool(myBufferMgr);
+
+
 		
 		System.out.println("\nChanges in Buffer Pool:");
 		diffMap(beforeMap,afterMap);
@@ -99,7 +99,6 @@ public class BufferUnitTest {
 		System.out.println("\nEvent(s):");
 		
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
-		
 		
 		myBufferMgr.pin(blk18);
 		

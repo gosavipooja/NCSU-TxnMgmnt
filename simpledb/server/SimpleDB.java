@@ -76,6 +76,11 @@ public class SimpleDB {
     * @param dirname the name of the database directory
     */
    public static void initFileLogAndBufferMgr(String dirname) {
+	   /**
+	    * Buffer manager had to be initialized before log manager 
+	    * to allow the log manger to pin a page in the buffer pool
+	    * @author Team F
+	    */
 	   bm = new BufferMgr(BUFFER_SIZE);
 	   initFileAndLogMgr(dirname);
    }
