@@ -156,8 +156,15 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    /**
     * Clear the current page, and append it to the log file.
     */
+   /**
+    * Unpin the existing buffer
+    */
    private void appendNewBlock() {
       currentpos = INT_SIZE;
+      
+      if(mybuf != null) {
+    	  SimpleDB.bufferMgr().unpin(mybuf);
+      }
       
       mybuf = SimpleDB.bufferMgr().pinNew(logfile, new PageFormatter() {
 		

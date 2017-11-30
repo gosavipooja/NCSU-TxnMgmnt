@@ -97,10 +97,10 @@ public class BufferUnitTest {
 		Block blk20 = blocksMap.get(20);
 
 		System.out.println("\nEvent(s):");
-		System.out.println("Block 15 is unpinned");
+		
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
-		System.out.println("Block 18 is pinned");
+		
 		myBufferMgr.pin(blk18);
 		
 		/* Block 15 is replaced
@@ -134,16 +134,16 @@ public class BufferUnitTest {
 		System.out.println("\nEvent(s):");
 		
 
-		System.out.println("Block 17 is unpinned");
+		
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk17));
 		
-		System.out.println("Block 15 is unpinned");
+		
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
-		System.out.println("Block 13 is unpinned");
+		
 		myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
 		
-		System.out.println("Block 18 is pinned");
+		
 		myBufferMgr.pin(blk18);
 		
 		 /*Block 13 is replaced
@@ -178,29 +178,29 @@ public class BufferUnitTest {
 
 		System.out.println("\nEvent(s):");
 		
-		System.out.println("Block 17 is pinned");
+		
 		myBufferMgr.pin(blk17);
 		
-		System.out.println("Block 15 is pinned");
+		
 		myBufferMgr.pin(blk15);
 		
-		System.out.println("Block 13 is pinned");
+		
 		myBufferMgr.pin(blk13);
 		
-		System.out.println("Block 17 is unpinned 2 times");
+		
 		for(int i=0; i<2; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk17));
 		
-		System.out.println("Block 15 is unpinned 2 times");
+		
 		for(int i=0; i<2; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
-		System.out.println("Block 13 is unpinned 2 times");
+		
 		for(int i=0; i<2; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
 		
 		
-		System.out.println("Block 18 is pinned");
+		
 		myBufferMgr.pin(blk18);
 		
 		 /*Block 13 is replaced
@@ -235,35 +235,35 @@ public class BufferUnitTest {
 
 		System.out.println("\nEvent(s):");
 		
-		System.out.println("Block 17 is pinned 2 times");
-		for(int i=0; i<2; i++)
+		
+		for(int i=0; i<3; i++)
 			myBufferMgr.pin(blk17);
 		
-		System.out.println("Block 15 is pinned 2 times");
-		for(int i=0; i<2; i++)
+		
+		for(int i=0; i<3; i++)
 			myBufferMgr.pin(blk15);
 
-		System.out.println("Block 13 is pinned 2 times");
-		for(int i=0; i<2; i++)
+		
+		for(int i=0; i<3; i++)
 			myBufferMgr.pin(blk13);
 		
-		System.out.println("Block 17 is unpinned 3 times");
-		for(int i=0; i<3; i++)
+		
+		for(int i=0; i<4; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk17));
 		
-		System.out.println("Block 15 is unpinned 3 times");
-		for(int i=0; i<3; i++)
+		
+		for(int i=0; i<4; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk15));
 		
-		System.out.println("Block 13 is unpinned 3 times");
-		for(int i=0; i<3; i++)
+		
+		for(int i=0; i<4; i++)
 			myBufferMgr.unpin(myBufferMgr.getMapping(blk13));
 		
 		
-		System.out.println("Block 18 is pinned");
+		
 		myBufferMgr.pin(blk18);
 		
-		System.out.println("Block 19 is pinned");
+		
 		myBufferMgr.pin(blk19);
 		
 		/* Block 15 is replaced
@@ -303,7 +303,7 @@ public class BufferUnitTest {
 		// Pin the blocks
 		for(int p = 0 ; p< pinOrder.length; p++) {
 			int i = pinOrder[p];
-			System.out.println("Block "+i+" is pinned");
+			
 			myBufferMgr.pin(blocksMap.get(i));
 		}
 
@@ -311,11 +311,11 @@ public class BufferUnitTest {
 		for(int p =0 ; p< unpinOrder.length; p++) {
 			int i = unpinOrder[p];
 			Buffer buf = myBufferMgr.getMapping(blocksMap.get(i));
-			System.out.println("Block "+i+" is unpinned");
+			
 			myBufferMgr.unpin( buf );
 		}
 		
-		System.out.println("Block 19 is pinned");
+		
 		myBufferMgr.pin(blk19);
 		
 		 /*Block 15 is replaced

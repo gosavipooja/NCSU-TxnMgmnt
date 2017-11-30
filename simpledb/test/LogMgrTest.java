@@ -16,5 +16,7 @@ public class LogMgrTest {
 		
 		logmgr.printLog();
 		logmgr.printLogPageBuffer();
+		
+		
 	}
 }
