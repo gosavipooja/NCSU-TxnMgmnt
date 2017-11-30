@@ -33,9 +33,14 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    public static final int LM_TXN_ID = -2;
 
    private String logfile;
-   private Buffer mybuf;
    private Block currentblk;
    private int currentpos;
+   
+   /**
+    * Buffer will take the place of Page for all further operations
+    * @author Team F
+    */
+   private Buffer mybuf;
 
    /**
     * Creates the manager for the specified log file.
@@ -206,7 +211,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
    private void finalizeRecord() {
 	   /**
 	    * All the transactions associated with the log manager have LM_TXN_ID as their transaction ID
-	    * This value is used by buffer manager at the time of flush the log record to the disk
+	    * This value is used by buffer manager at the time when log record is flushed to the disk
 	    * @author Team F
 	    */
       mybuf.setInt(currentpos, getLastRecordPosition(), LM_TXN_ID, currentLSN());
@@ -218,6 +223,10 @@ public class LogMgr implements Iterable<BasicLogRecord> {
       return mybuf.getInt(LAST_POS);
    }
 
+   /**
+    * Uses the Log manager's hard coded transaction ID and the LSN as per the already existing logic
+    * @author Team F
+    */
    private void setLastRecordPosition(int pos) {
       mybuf.setInt(LAST_POS, pos, LM_TXN_ID, currentLSN());
    }
