@@ -7,7 +7,6 @@ import simpledb.file.*;
 import static simpledb.file.Page.*;
 import java.util.*;
 
-import com.sun.org.apache.bcel.internal.generic.LXOR;
 
 /**
  * The low-level log manager.
