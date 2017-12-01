@@ -13,8 +13,6 @@ List of files changed:
 	buffer/Buffer.java
 	buffer/BufferMgr.java
 	log/LogMgr.java
-	buffer/BufferUnitTest.java (newly added)
-	log/LogMgrUnitTest.java (newly added)
 	server/SimpleDB.java (minor modification)
 
 
