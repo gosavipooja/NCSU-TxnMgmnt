@@ -72,7 +72,7 @@ public class TestBuffer {
 	public void testCase1() {
 		System.out.println("----------Start Test Case #1----------\n");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		//
 		testBBMgr.resetCounter();
 		Block[] testBlocks = new Block[9];
 		for (int i = 0; i < 9; i++) {
@@ -145,7 +145,7 @@ public class TestBuffer {
 	public void testCase2() {
 		System.out.println("----------Start Test Case #2----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -211,7 +211,7 @@ public class TestBuffer {
 	public void testCase3() {
 		System.out.println("----------Start Test Case #3----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -292,7 +292,7 @@ public class TestBuffer {
 	public void testCase4() {
 		System.out.println("----------Start Test Case #4----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -381,7 +381,7 @@ public class TestBuffer {
 	public void testCase5() {
 		System.out.println("----------Start Test Case #5----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -478,7 +478,7 @@ public class TestBuffer {
 	public void testCase6() {
 		System.out.println("----------Start Test Case #6----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -571,7 +571,7 @@ public class TestBuffer {
 	public void testCase7() {
 		System.out.println("----------Start Test Case #7----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
@@ -656,7 +656,7 @@ public class TestBuffer {
 	public void testCase8() {
 		System.out.println("----------Start Test Case #8----------");
 		BufferMgr testBBMgr = new SimpleDB().bufferMgr();
-		testBBMgr.getBufferPoolMap().clear();
+		
 		testBBMgr.resetCounter();
 		System.out.println("Test testBlocks creation started");
 		Block[] testBlocks = new Block[9];
