@@ -254,7 +254,9 @@ class BasicBufferMgr {
 	 */
 	private void remapBuffer(Block oldBlk, Block newBlk, Buffer buff) {
 		bufferPoolMap.remove(oldBlk);
-		bufferPoolMap.put(newBlk, buff);
+		if(newBlk!=null) {
+			bufferPoolMap.put(newBlk, buff);
+		}
 	}
 
 	/**
