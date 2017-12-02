@@ -14,14 +14,15 @@ class BasicBufferMgr {
 	/**
 	 * Added HashMap to keep track of buffers in the pool instead of an array
 	 * because retrieval is faster Created a counter variable to track the 'pin
-	 * time' of a block Created a bufferPoolSize to store the maximum limit on the
+	 * time' of a block Created a poolLength to store the maximum limit on the
 	 * buffer pool size
 	 * 
 	 * @author Team F
 	 */
 	private HashMap<Block, Buffer> bufferPoolMap;
 	private int numAvailable;
-	private int bufferPoolSize;
+	private int poolLength;
+	private int unclaimedBuffCount;
 	public static double counter;
 
 	/**
@@ -37,14 +38,15 @@ class BasicBufferMgr {
 	 *            the number of buffer slots to allocate
 	 * 
 	 *            Removed array initialization and replaced it with HashMap.
-	 *            Assigning bufferPoolSize
+	 *            Assigning poolLength
 	 * 
 	 * @author Team F
 	 */
 	BasicBufferMgr(int numbuffs) {
 		bufferPoolMap = new HashMap<Block, Buffer>();
 		numAvailable = numbuffs;
-		bufferPoolSize = numbuffs;
+		poolLength = numbuffs;
+		unclaimedBuffCount = numbuffs;
 	}
 
 	/**
@@ -54,9 +56,11 @@ class BasicBufferMgr {
 	 *            the transaction's id number
 	 */
 	synchronized void flushAll(int txnum) {
-		for (Buffer buff : bufferPoolMap.values())
+		for (Block b : bufferPoolMap.keySet()) {
+			Buffer buff = bufferPoolMap.get(b);
 			if (buff.isModifiedBy(txnum))
 				buff.flush();
+		}
 	}
 
 	/**
@@ -80,14 +84,16 @@ class BasicBufferMgr {
 		Buffer buff = findExistingBuffer(blk);
 		if (buff == null) {
 			buff = chooseUnpinnedBuffer();
-			bufferPoolMap.remove(buff.block());
+			if (buff == null) {
+				return null;
+			}
+			remapBuffer(buff.block(), blk, buff);
 			buff.assignToBlock(blk);
 		}
 		if (!buff.isPinned())
 			numAvailable--;
 		counter++;
 		buff.pin();
-		bufferPoolMap.put(blk, buff);
 		return buff;
 	}
 
@@ -110,12 +116,16 @@ class BasicBufferMgr {
 	 */
 	synchronized Buffer pinNew(String filename, PageFormatter fmtr) {
 		Buffer buff = chooseUnpinnedBuffer();
-		bufferPoolMap.remove(buff.block());
+		if(buff == null) {
+			return null;
+		}
+		Block oldBlk = buff.block(); 
 		buff.assignToNew(filename, fmtr);
+		Block newBlk = buff.block();
 		numAvailable--;
+		remapBuffer(oldBlk, newBlk, buff);
 		counter++;
 		buff.pin();
-		bufferPoolMap.put(buff.block(), buff);
 		return buff;
 	}
 
@@ -147,11 +157,7 @@ class BasicBufferMgr {
 	 * @author Team F
 	 */
 	private Buffer findExistingBuffer(Block blk) {
-		if (bufferPoolMap.containsKey(blk)) {
-			return bufferPoolMap.get(blk);
-		} else {
-			return null;
-		}
+		return bufferPoolMap.get(blk);
 	}
 
 	/**
@@ -184,47 +190,71 @@ class BasicBufferMgr {
 	 * @author Team F
 	 */
 	private Buffer chooseUnpinnedBuffer() {
-		if (numAvailable > 0) {
-			if (bufferPoolMap.size() < bufferPoolSize) {
-				Buffer buff = new Buffer();
-				return buff;
-			} else {
-				Buffer lruBuff = null;
-				for (Buffer b : bufferPoolMap.values()) {
-					if (!b.isPinned()) {
-						if (lruBuff == null) {
+		// If no unpinned buffers are available and all the buffers are pinned, then throw exception
+		if (numAvailable == 0)
+			throw new BufferAbortException();
+		
+		Buffer buf = getUnclaimedBuffs();
+		if(buf!=null) return buf;
+		
+
+		Buffer lruBuff = null;
+		for (Buffer b : bufferPoolMap.values()) {
+			if (!b.isPinned()) {
+				if (lruBuff == null) {
+					lruBuff = b;
+				} else {
+					// If both the current block and replacement candidate was pinned twice or more
+					if (b.getSecondLastPin() != 0 && lruBuff.getSecondLastPin() != 0) {
+						if (b.getlastPin() < lruBuff.getlastPin()) {
 							lruBuff = b;
-						} else {
-							// If both the current block and replacement candidate was pinned twice or more
-							if (b.getSecondLastPin() != 0 && lruBuff.getSecondLastPin() != 0) {
-								if (b.getlastPin() < lruBuff.getlastPin()) {
-									lruBuff = b;
-								}
-							}
-							// If both the current block and replacement candidate was pinned only once
-							else if (b.getSecondLastPin() == 0 && lruBuff.getSecondLastPin() == 0) {
-								if (b.getlastPin() < lruBuff.getlastPin()) {
-									lruBuff = b;
-								}
-							}
-							// If either of the current block or replacement candidate was pinned only once
-							else if (b.getSecondLastPin() == 0 || lruBuff.getSecondLastPin() == 0) {
-								lruBuff = b.getSecondLastPin() != 0 ? lruBuff : b;
-							}
 						}
 					}
+					// If both the current block and replacement candidate was pinned only once
+					else if (b.getSecondLastPin() == 0 && lruBuff.getSecondLastPin() == 0) {
+						if (b.getlastPin() < lruBuff.getlastPin()) {
+							lruBuff = b;
+						}
+					}
+					// If either of the current block or replacement candidate was pinned only once
+					else if (b.getSecondLastPin() == 0 || lruBuff.getSecondLastPin() == 0) {
+						lruBuff = b.getSecondLastPin() != 0 ? lruBuff : b;
+					}
 				}
-
-				// Reset the pin times
-				lruBuff.setLastPin(0);
-				lruBuff.setSecondLastPin(0);
-
-				// Return the buffer
-				return lruBuff;
 			}
-		} else {
-			throw new BufferAbortException();
 		}
+
+		// Reset the pin times
+		lruBuff.setLastPin(0);
+		lruBuff.setSecondLastPin(0);
+
+		// Return the buffer
+		return lruBuff;
+	
+	}
+	
+	/**
+	 * Get the number of unclaimed and unpinned buffers in the buffer pool
+	 * @return
+	 */
+	private int getNumUnclaimedBuffs() {
+		unclaimedBuffCount = poolLength - bufferPoolMap.size();
+		return unclaimedBuffCount;
+	}
+	
+	private Buffer getUnclaimedBuffs() {
+		if(getNumUnclaimedBuffs()>0) return new Buffer();
+		return null;
+	}
+	/**
+	 * Remap the buffer from old block to new
+	 * @param oldBlk
+	 * @param newBlk
+	 * @param buff
+	 */
+	private void remapBuffer(Block oldBlk, Block newBlk, Buffer buff) {
+		bufferPoolMap.remove(oldBlk);
+		bufferPoolMap.put(newBlk, buff);
 	}
 
 	/**
@@ -252,7 +282,7 @@ class BasicBufferMgr {
 	/**
 	 * Methods to help run JUnit Test cases
 	 * 
-	 * @return the bufferPoolMap
+	 * @return bufferPoolMap
 	 */
 	public HashMap<Block, Buffer> getBufferPoolMap() {
 		return bufferPoolMap;
@@ -262,6 +292,6 @@ class BasicBufferMgr {
 	 * Methods to help run JUnit Test cases resets the numAvailable count
 	 */
 	public void resetNumAvailable() {
-		numAvailable = bufferPoolSize;
+		numAvailable = poolLength;
 	}
 }
